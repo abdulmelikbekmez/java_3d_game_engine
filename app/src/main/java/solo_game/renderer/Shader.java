@@ -4,12 +4,14 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
 import java.nio.FloatBuffer;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import java.io.File;
 
 import solo_game.util.FileUtils;
 
@@ -21,12 +23,17 @@ public class Shader {
     private boolean enabled;
 
     public Shader(String vertPath, String fragPath) {
+        System.out.println();
         ID = createShader(vertPath, fragPath);
     }
 
     private int createShader(String vertPath, String fragPath) {
-        String vert = FileUtils.loadAsString(BASEPATH + vertPath);
-        String frag = FileUtils.loadAsString(BASEPATH + fragPath);
+        File vertex = Path.of("assets", "shaders", vertPath).toFile();
+        File fragment = Path.of("assets", "shaders", fragPath).toFile();
+
+        String frag = FileUtils.loadAsFile(fragment);
+        String vert = FileUtils.loadAsFile(vertex);
+
         return create(vert, frag);
     }
 
