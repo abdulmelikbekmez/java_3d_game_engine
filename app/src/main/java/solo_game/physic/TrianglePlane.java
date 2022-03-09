@@ -5,10 +5,10 @@
 package solo_game.physic;
 
 import org.joml.Vector3f;
+
 import static java.lang.Math.*;
 
 /**
- *
  * @author abdulmelik
  */
 public class TrianglePlane extends Plane {
@@ -25,8 +25,6 @@ public class TrianglePlane extends Plane {
     private final Vector3f B;
     private final Vector3f C;
 
-    // TODO: remove this
-    public Vector3f collidedPos;
 
     public TrianglePlane(Vector3f a, Vector3f b, Vector3f c) {
         super(a, b, c);
@@ -54,60 +52,29 @@ public class TrianglePlane extends Plane {
         return new Vector3f(a).dot(b) / a.length();
     }
 
-    public boolean deneme(Ray ray) {
+    public boolean isCollided(Ray ray) {
         Vector3f planePoint = ray.getPointOfPlaneIntersection(this);
         Vector3f RA = new Vector3f(planePoint).sub(A);
         Vector3f VA = new Vector3f(AB).add(projectionBoverA(BA, BC));
         float x = componentBoverA(RA, VA);
         float a = 1 - (x / VA.length());
 
-        boolean acheck = (a < 1 && a > 0);
+        boolean acheck = (a < .8f && a > 0f);
 
         Vector3f RB = new Vector3f(planePoint).sub(B);
         Vector3f VB = new Vector3f(BC).add(projectionBoverA(CB, CA));
         float y = componentBoverA(RB, VB);
         float b = 1 - (y / VB.length());
 
-        boolean bcheck = (b < 1 && b > 0);
+        boolean bcheck = (b < .8f && b > 0);
 
         Vector3f RC = new Vector3f(planePoint).sub(C);
         Vector3f VC = new Vector3f(CA).add(projectionBoverA(AC, AB));
         float z = componentBoverA(RC, VC);
         float c = 1 - (z / VC.length());
 
-        boolean ccheck = (c < 1 && c > 0);
+        boolean ccheck = (c < .8f && c > 0);
 
-        if (acheck && bcheck && ccheck) {
-            collidedPos = planePoint;
-
-            return true;
-        }
-        collidedPos = null;
-        return false;
+        return acheck && bcheck && ccheck;
     }
-
-    public boolean isCollided(Ray ray) {
-        Vector3f planePoint = ray.getPointOfPlaneIntersection(this);
-
-        Vector3f aToPoint = new Vector3f(planePoint).sub(A);
-        Vector3f bToPoint = new Vector3f(planePoint).sub(B);
-        Vector3f cToPoint = new Vector3f(planePoint).sub(C);
-
-        Vector3f aTest = new Vector3f(AB).cross(aToPoint);
-        Vector3f bTest = new Vector3f(BC).cross(bToPoint);
-        Vector3f cTest = new Vector3f(CA).cross(cToPoint);
-
-        boolean aTestVec = new Vector3f(aTest).dot(normal) > 0.1f;
-        boolean bTestVec = new Vector3f(bTest).dot(normal) > 0.1f;
-        boolean cTestVec = new Vector3f(cTest).dot(normal) > 0.1f;
-
-        if (aTestVec && bTestVec && cTestVec) {
-            collidedPos = planePoint;
-            return true;
-        } else {
-            collidedPos = null;
-            return false;
-        }
-    }
-
 }

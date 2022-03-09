@@ -4,20 +4,17 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
 import java.nio.FloatBuffer;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
-import java.io.File;
 
 import solo_game.util.FileUtils;
 
 public class Shader {
 
-    private static final String BASEPATH = "assets/shaders/";
     private final Map<String, Integer> locationCache = new HashMap<>();
     private final int ID;
     private boolean enabled;
@@ -28,11 +25,13 @@ public class Shader {
     }
 
     private int createShader(String vertPath, String fragPath) {
-        File vertex = Path.of("assets", "shaders", vertPath).toFile();
-        File fragment = Path.of("assets", "shaders", fragPath).toFile();
+        String vertexFile = ClassLoader.getSystemResource(vertPath).getFile();
+        String fragmentFile = ClassLoader.getSystemResource(fragPath).getFile();
+        System.out.println(vertexFile);
+        System.out.println(fragmentFile);
 
-        String frag = FileUtils.loadAsFile(fragment);
-        String vert = FileUtils.loadAsFile(vertex);
+        String vert = FileUtils.loadAsString(vertexFile);
+        String frag = FileUtils.loadAsString(fragmentFile);
 
         return create(vert, frag);
     }

@@ -2,22 +2,19 @@ package solo_game.physic;
 
 import org.joml.Vector3f;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 /**
- *
  * @author abdulmelik
  */
 public class Ray {
 
     private final Vector3f start;
     private final Vector3f direction;
+    public float height;
 
     public Ray(Vector3f start, Vector3f direction) {
         this.start = start;
         this.direction = direction;
+        height = -1;
     }
 
     public Vector3f getDirection() {
@@ -36,7 +33,7 @@ public class Ray {
     }
 
     public Vector3f getPointOfPlaneIntersection(Plane plane) {
-        float height = getHeightOfPlaneIntersection(plane);
+        height = getHeightOfPlaneIntersection(plane);
         return getStart().add(getDirection().mul(height));
     }
 

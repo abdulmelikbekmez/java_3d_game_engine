@@ -1,5 +1,7 @@
 package solo_game.input;
 
+import solo_game.Window;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 import java.util.ArrayList;
@@ -12,19 +14,20 @@ public class MouseListener {
     private static MouseListener instance;
     private double scrollX, scrollY;
     private double xPos, yPos, lastY, lastX;
-    private final boolean mouseButtonPressed[] = new boolean[3];
+    private final boolean[] mouseButtonPressed = new boolean[3];
     private final ArrayList<MouseHandler> mouseHandlers;
 
     private boolean isDragging;
 
     private MouseListener() {
+
         mouseHandlers = new ArrayList<>();
         scrollX = 0.0;
         scrollY = 0.0;
-        xPos = 0.0;
-        yPos = 0.0;
-        lastX = 0.0;
-        lastY = 0.0;
+        xPos = Window.getWidth() / 2;
+        yPos = Window.getHeight() / 2;
+        lastX = Window.getWidth() / 2;
+        lastY = Window.getHeight() / 2;
     }
 
     public static MouseListener get() {
@@ -54,6 +57,7 @@ public class MouseListener {
     }
 
     public static void mouseButtonCallback(long window, int button, int action, int mods) {
+
         if (!(button < get().mouseButtonPressed.length)) {
             return;
         }

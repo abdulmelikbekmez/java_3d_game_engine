@@ -30,13 +30,25 @@ public class Window {
     public float r, g, b, a;
 
     private Window() {
-        width = 800;
-        height = 600;
+        width = 1200;
+        height = 900;
         title = "Solo Game";
         r = 0;
         g = 0;
         b = 0;
         a = 1;
+    }
+
+    public static float getAspectRatio() {
+        return ((float) get().width) / ((float) get().height);
+    }
+
+    public static float getWidth() {
+        return get().width;
+    }
+
+    public static float getHeight() {
+        return get().height;
     }
 
     public static void changeScene(int newScene) {
@@ -105,6 +117,7 @@ public class Window {
 
         glfwSetKeyCallback(glfwWindow, KeyListener::keyCallBack);
 
+        // Disable mouse cursor
         glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         // Make the OpenGL context current
@@ -122,6 +135,8 @@ public class Window {
         // Set background color
         glClearColor(r, g, b, a);
 
+        glEnable(GL_DEPTH_TEST);
+
         changeScene(0);
 
     }
@@ -137,7 +152,7 @@ public class Window {
                 glfwSetWindowShouldClose(glfwWindow, true);
             }
 
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             if (dt >= 0) {
                 currentScene.update(dt);

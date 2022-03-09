@@ -29,6 +29,7 @@ public class Camera implements MouseHandler, KeyboardHandler {
     private final float movementSpeed;
     private final float mouseSensitivity;
     private final float zoom;
+    private final float aspectRatio;
 
     public Camera(final Vector3f pos) {
         this.pos = pos;
@@ -42,12 +43,13 @@ public class Camera implements MouseHandler, KeyboardHandler {
         mouseSensitivity = 0.05f;
         movementSpeed = 2f;
         zoom = 45.0f;
+        aspectRatio = Window.getAspectRatio();
     }
 
     public Vector3f getPosition() {
         return new Vector3f(pos);
     }
-    
+
     public Vector3f getDirection() {
         return new Vector3f(front);
     }
@@ -58,7 +60,7 @@ public class Camera implements MouseHandler, KeyboardHandler {
     }
 
     public Matrix4f getProjectionMatrix() {
-        return new Matrix4f().perspective((float) Math.toRadians(zoom), 1.0f, 0.01f, 10000000.0f);
+        return new Matrix4f().perspective((float) Math.toRadians(zoom), aspectRatio, 0.01f, 10000000.0f);
     }
 
     private void mouseInput() {

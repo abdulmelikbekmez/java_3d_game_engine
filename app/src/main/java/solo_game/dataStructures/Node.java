@@ -1,4 +1,3 @@
-
 package solo_game.dataStructures;
 
 /**
@@ -13,4 +12,8 @@ public class Node {
     public Node(Data data) {
         this.data = data;
     }
+
+    public Node() {
+    }
+
 }

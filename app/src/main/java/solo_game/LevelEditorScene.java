@@ -1,10 +1,13 @@
 package solo_game;
 
 import org.joml.Vector3f;
+import solo_game.dataStructures.Data;
+import solo_game.dataStructures.LinkedList;
+import solo_game.dataStructures.Node;
 
 import solo_game.input.MouseListener;
 
-/**
+/*
  * LevelEditorScene
  */
 import solo_game.renderer.Shader;
@@ -12,32 +15,56 @@ import solo_game.renderer.Shader;
 public class LevelEditorScene extends Scene {
 
     private Shader shader;
-    private ColoredBox[] items;
     private Camera camera;
-    int colCount = 0;
+    private LinkedList[] linkedLists;
+    private ColoredBox selectedBox;
 
     @Override
     public void init() {
-        camera = new Camera(new Vector3f(0, 2, 7));
+        camera = new Camera(new Vector3f(0, 0, 20));
 
         MouseListener.addMouseHandler(camera);
-        // KeyListener.addKeyboardHandler(camera);
-
-        // shader = new Shader("vertex.glsl", "fragment.glsl");
         shader = new Shader("coloredVertex.glsl", "coloredFragment.glsl");
-        // items = new Box[] {
-        // new Box(new Vector3f(0, 0, -5)),
-        // new Box(new Vector3f(0, 0, -3)),
-        // new Box(new Vector3f(0, 0, -1)),
-        // new Box(new Vector3f(0, 0, 1)), };
 
-        
-        items = new ColoredBox[]{
-            new ColoredBox(new Vector3f(0, 0, -5), new Vector3f(128, 0, 0)),
-            new ColoredBox(new Vector3f(0, 0, -3), new Vector3f(128, 0, 0)),
-            new ColoredBox(new Vector3f(0, 0, -1), new Vector3f(128, 0, 0)),
-            new ColoredBox(new Vector3f(0, 0, 1), new Vector3f(128, 0, 0)),};
-        
+        int n = 8;
+        initLinkedList(n);
+    }
+
+    private void initLinkedList(int n) {
+        linkedLists = new LinkedList[n];
+        Node prevHead = null;
+        for (int i = 0; i < n; i++) {
+            LinkedList l = new LinkedList();
+            for (int j = 0; j < n; j++) {
+                Data d = new Data(i + 1, j + 1, new ColoredBox(new Vector3f((i - n / 2) * 2, (j - n / 2) * 2, 0)));
+                l.addLast(d);
+            }
+            if (prevHead != null) {
+                prevHead.child = l.getHead();
+            }
+            prevHead = l.getHead();
+            linkedLists[i] = l;
+        }
+        LinkedList a = linkedLists[n / 2 - 1];
+        a.deleteAfter((n / 2), n / 2 - 1);
+        a.deleteAfter((n / 2), (n / 2) - 1);
+
+        LinkedList b = linkedLists[n / 2];
+        b.deleteAfter((n / 2) + 1, n / 2 - 1);
+        b.deleteAfter((n / 2) + 1, (n / 2) - 1);
+
+    }
+
+    private void checkCollisions() {
+
+        for (LinkedList linkedList : linkedLists) {
+            Node tmp = linkedList.getHead();
+            tmp.data.box.isCollided(camera);
+            while (tmp.next != null) {
+                tmp = tmp.next;
+                tmp.data.box.isCollided(camera);
+            }
+        }
     }
 
     public LevelEditorScene() {
@@ -47,14 +74,16 @@ public class LevelEditorScene extends Scene {
     public void update(float dt) {
         // Bind the shader program
         camera.update(dt);
-        for (ColoredBox item : items) {
-            item.render(shader, camera);
-            if (item.isCollided(camera)) {
-                new ColoredBox(item.collidedPos, new Vector3f(0, 0, 64)).render(shader, camera);
-            }
+        checkCollisions();
 
+        for (LinkedList linkedList : linkedLists) {
+            Node tmp = linkedList.getHead();
+            tmp.data.box.render(shader, camera);
+            while (tmp.next != null) {
+                tmp = tmp.next;
+                tmp.data.box.render(shader, camera);
+            }
         }
 
     }
-
 }
