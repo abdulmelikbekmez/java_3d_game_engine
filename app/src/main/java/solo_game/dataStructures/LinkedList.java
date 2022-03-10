@@ -1,30 +1,33 @@
 package solo_game.dataStructures;
 
-/**
- * LinkedList
- */
-public class LinkedList {
+import java.util.Iterator;
 
-    private Node head;
+public class LinkedList<T> implements Iterable<Node<T>> {
 
-    public Node getHead() {
+    protected Node<T> head;
+
+    public Node<T> getHead() {
         return head;
     }
 
-    public void addFirst(Data data) {
-        Node tmp = new Node(data);
+    private void addFirst(T data) {
+        Node<T> tmp = new Node<>(data);
         if (head != null) {
             tmp.next = head;
         }
         head = tmp;
     }
 
-    public void addLast(Data data) {
-        Node tmp = new Node(data);
+    public void erase() {
+        head = null;
+    }
+
+    public void addLast(T data) {
+        Node<T> tmp = new Node<>(data);
         if (head == null) {
             head = tmp;
         } else {
-            Node oldLast = head;
+            Node<T> oldLast = head;
             while (oldLast.next != null) {
                 oldLast = oldLast.next;
             }
@@ -33,27 +36,36 @@ public class LinkedList {
     }
 
 
-    public boolean deleteAfter(int row, int col) {
-        if (head == null) {
-            return false;
-        }
-        Node searched = head;
-        boolean finded = false;
-        while (searched.next != null) {
-            if (searched.data.equal(row, col)) {
-                finded = true;
-                break;
-            }
-            searched = searched.next;
-        }
-        if (!finded || searched.next == null)
-            return false;
+    @Override
+    public Iterator<Node<T>> iterator() {
 
-        Node next = searched.next;
-        if (next.next != null)
-            searched.next = next.next;
-        else
-            searched.next = null;
-        return true;
+        return new Iterator<>() {
+            Node<T> lastNext = null;
+            boolean started = false;
+
+            @Override
+            public boolean hasNext() {
+                if (head == null) {
+                    return false;
+                }
+                if (!started) {
+                    started = true;
+                    return true;
+                }
+                return lastNext.next != null;
+            }
+
+            @Override
+            public Node<T> next() {
+                if (lastNext == null && head != null) {
+                    lastNext = head;
+                    return head;
+                }
+
+                Node<T> n = lastNext.next;
+                lastNext = n;
+                return n;
+            }
+        };
     }
 }

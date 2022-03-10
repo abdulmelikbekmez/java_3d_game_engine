@@ -68,6 +68,10 @@ public class MouseListener {
             get().mouseButtonPressed[button] = false;
             get().isDragging = false;
         }
+        
+        for (MouseHandler handler : get().mouseHandlers) {
+            handler.onMouseClick();
+        }
     }
 
     public static void mouseScrollCallback(long window, double xOffset, double yOffset) {

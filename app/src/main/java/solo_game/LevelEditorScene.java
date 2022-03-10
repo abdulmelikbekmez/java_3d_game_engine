@@ -1,10 +1,15 @@
 package solo_game;
 
 import org.joml.Vector3f;
+
+import static org.lwjgl.glfw.GLFW.*;
+
 import solo_game.dataStructures.Data;
 import solo_game.dataStructures.LinkedList;
+import solo_game.dataStructures.Move;
+import solo_game.dataStructures.MultiLinkedList;
 import solo_game.dataStructures.Node;
-
+import solo_game.input.MouseHandler;
 import solo_game.input.MouseListener;
 
 /*
@@ -12,58 +17,70 @@ import solo_game.input.MouseListener;
  */
 import solo_game.renderer.Shader;
 
-public class LevelEditorScene extends Scene {
+public class LevelEditorScene extends Scene implements MouseHandler {
 
     private Shader shader;
     private Camera camera;
-    private LinkedList[] linkedLists;
-    private ColoredBox selectedBox;
+    private MultiLinkedList boxList;
+    private LinkedList<Move> availableMovesList;
+
+    private Node<Data> selectedNode;
+    private Node<Data> hoveredNode;
+
+    private Node<Move> hoveredMove;
+
+    private Vector3f collidedPos;
+
+    public static int N = 6;
 
     @Override
     public void init() {
         camera = new Camera(new Vector3f(0, 0, 20));
 
         MouseListener.addMouseHandler(camera);
+        MouseListener.addMouseHandler(this);
         shader = new Shader("coloredVertex.glsl", "coloredFragment.glsl");
 
-        int n = 8;
-        initLinkedList(n);
+        boxList = new MultiLinkedList(N);
+        availableMovesList = new LinkedList<>();
+
     }
 
-    private void initLinkedList(int n) {
-        linkedLists = new LinkedList[n];
-        Node prevHead = null;
-        for (int i = 0; i < n; i++) {
-            LinkedList l = new LinkedList();
-            for (int j = 0; j < n; j++) {
-                Data d = new Data(i + 1, j + 1, new ColoredBox(new Vector3f((i - n / 2) * 2, (j - n / 2) * 2, 0)));
-                l.addLast(d);
+    private void updateHover() {
+        updateHoverBoxes();
+        updateHoverMoves();
+        updateCollidedPos();
+    }
+
+    private void updateHoverBoxes() {
+        for (Node<Data> node : boxList) {
+            if (node.data.box.isCollided(camera)) {
+                collidedPos = node.data.box.collidedPos;
+                if (node.equals(selectedNode)) {
+                    return;
+                }
+                hoveredNode = node;
+                return;
             }
-            if (prevHead != null) {
-                prevHead.child = l.getHead();
-            }
-            prevHead = l.getHead();
-            linkedLists[i] = l;
         }
-        LinkedList a = linkedLists[n / 2 - 1];
-        a.deleteAfter((n / 2), n / 2 - 1);
-        a.deleteAfter((n / 2), (n / 2) - 1);
 
-        LinkedList b = linkedLists[n / 2];
-        b.deleteAfter((n / 2) + 1, n / 2 - 1);
-        b.deleteAfter((n / 2) + 1, (n / 2) - 1);
-
+        hoveredNode = null;
     }
 
-    private void checkCollisions() {
-
-        for (LinkedList linkedList : linkedLists) {
-            Node tmp = linkedList.getHead();
-            tmp.data.box.isCollided(camera);
-            while (tmp.next != null) {
-                tmp = tmp.next;
-                tmp.data.box.isCollided(camera);
+    private void updateHoverMoves() {
+        for (Node<Move> node : availableMovesList) {
+            if (node.data.getBox().isCollided(camera)) {
+                collidedPos = node.data.getBox().collidedPos;
+                hoveredMove = node;
+                return;
             }
+        }
+        hoveredMove = null;
+    }
+
+    private void updateCollidedPos() {
+        if (hoveredMove == null && hoveredNode == null) {
+            collidedPos = null;
         }
     }
 
@@ -72,18 +89,84 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void update(float dt) {
-        // Bind the shader program
         camera.update(dt);
-        checkCollisions();
+        updateHover();
+        updateAvailableMoves();
 
-        for (LinkedList linkedList : linkedLists) {
-            Node tmp = linkedList.getHead();
-            tmp.data.box.render(shader, camera);
-            while (tmp.next != null) {
-                tmp = tmp.next;
-                tmp.data.box.render(shader, camera);
+    }
+
+    private void updateAvailableMoves() {
+        if (selectedNode != null) {
+
+            Move pos;
+            if ((pos = boxList.right(selectedNode)) != null) {
+                availableMovesList.addLast(pos);
+            }
+            if ((pos = boxList.left(selectedNode)) != null) {
+                availableMovesList.addLast(pos);
+            }
+            if ((pos = boxList.up(selectedNode)) != null) {
+                availableMovesList.addLast(pos);
+            }
+            if ((pos = boxList.down(selectedNode)) != null) {
+                availableMovesList.addLast(pos);
             }
         }
+    }
+
+    private void renderBox(ColoredBox box) {
+        if (hoveredNode != null && box.equals(hoveredNode.data.box)) {
+            box.renderWithColor(shader, camera, ColoredBox.hoveredColor);
+        } else if (selectedNode != null && box.equals(selectedNode.data.box)) {
+            box.renderWithColor(shader, camera, ColoredBox.selectedColor);
+        } else {
+            box.render(shader, camera);
+        }
+    }
+
+    @Override
+    public void render() {
+        if (collidedPos != null) {
+            new ColoredBox(collidedPos, .3f, new Vector3f(0, 0, 128f)).render(shader, camera);
+        }
+
+        for (Node<Data> node : boxList) {
+            renderBox(node.data.box);
+        }
+
+        for (Node<Move> move : availableMovesList) {
+            move.data.getBox().render(shader, camera);
+        }
+
+    }
+
+    @Override
+    public void onMouseMove() {
+    }
+
+    private void onMoveClicked() {
+        if (hoveredMove != null) {
+            hoveredMove.data.action();
+        }
+    }
+
+    @Override
+    public void onMouseClick() {
+        if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+            if (hoveredNode != null) {
+                selectedNode = hoveredNode;
+                hoveredNode = null;
+            }
+            onMoveClicked();
+        }
+
+        if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
+            hoveredNode = null;
+            hoveredMove = null;
+            selectedNode = null;
+        }
+
+        availableMovesList.erase();
 
     }
 }

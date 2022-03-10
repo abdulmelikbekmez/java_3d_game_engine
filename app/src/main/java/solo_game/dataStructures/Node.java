@@ -2,14 +2,16 @@ package solo_game.dataStructures;
 
 /**
  * Node
+ *
+ * @param <T>
  */
-public class Node {
+public class Node<T> {
 
-    public Node next;
-    public Node child;
-    public Data data;
+    public Node<T> next;
+    public Node<T> child;
+    public T data;
 
-    public Node(Data data) {
+    public Node(T data) {
         this.data = data;
     }
 

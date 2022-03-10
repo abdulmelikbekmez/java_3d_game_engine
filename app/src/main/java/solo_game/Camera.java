@@ -98,7 +98,6 @@ public class Camera implements MouseHandler, KeyboardHandler {
 
     @Override
     public void onMouseClick() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from
     }
 
     @Override

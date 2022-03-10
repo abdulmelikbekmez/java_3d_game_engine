@@ -14,9 +14,9 @@ public class FileUtils {
         StringBuilder result = new StringBuilder();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
-            String buffer = "";
+            String buffer;
             while ((buffer = reader.readLine()) != null) {
-                result.append(buffer + '\n');
+                result.append(buffer).append('\n');
             }
             reader.close();
         } catch (IOException e) {
@@ -29,9 +29,9 @@ public class FileUtils {
         StringBuilder result = new StringBuilder();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
-            String buffer = "";
+            String buffer;
             while ((buffer = reader.readLine()) != null) {
-                result.append(buffer + '\n');
+                result.append(buffer).append('\n');
             }
             reader.close();
         } catch (IOException e) {
