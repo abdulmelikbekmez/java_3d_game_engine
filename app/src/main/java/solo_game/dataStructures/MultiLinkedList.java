@@ -43,7 +43,7 @@ public class MultiLinkedList implements Iterable<Node<Data>> {
         deleteAfter((n / 2), n / 2 + 2);
     }
 
-    public final boolean deleteAfter(int row, int col) {
+    private final boolean deleteAfter(int row, int col) {
         Node<Data> searched;
         for (Node<Data> node : this) {
             if (!node.data.equal(row, col)) {
@@ -66,6 +66,15 @@ public class MultiLinkedList implements Iterable<Node<Data>> {
         return false;
     }
 
+    private final void addFirst(Node<Data> nodeToAdd) {
+
+        if (head.child != null) {
+            nodeToAdd.child = head.child;
+        }
+        nodeToAdd.next = head;
+        head = nodeToAdd;
+    }
+
     public final boolean add(Node<Data> nodeToAdd) {
 
         if (head == null) {
@@ -73,14 +82,14 @@ public class MultiLinkedList implements Iterable<Node<Data>> {
             return true;
         }
 
-        // find parent
-        Node<Data> parent = head;
-        while (parent != null && nodeToAdd.data.x != parent.data.x) {
-            parent = parent.child;
+        // find previous
+        Node<Data> prev = head;
+        while (prev != null && nodeToAdd.data.x != prev.data.x) {
+            prev = prev.child;
         }
 
-        // there is no parent
-        if (parent == null) {
+        // there is no previous
+        if (prev == null) {
             // left
             if (head.data.x > nodeToAdd.data.x) {
                 nodeToAdd.child = head;
@@ -88,87 +97,113 @@ public class MultiLinkedList implements Iterable<Node<Data>> {
                 return true;
             }
 
-            parent = head;
-            while (parent.child != null && parent.child.data.x < nodeToAdd.data.x) {
-                parent = parent.child;
+            if (head.data.x == nodeToAdd.data.x) {
+                System.out.println("hataaa!!!");
             }
 
-            if (parent.child != null) {
+            Node<Data> neigbour = head;
+            while (neigbour.child != null && neigbour.child.data.x < neigbour.data.x) {
+                neigbour = neigbour.child;
+            }
+
+            if (neigbour.child != null) {
                 // middle
-                nodeToAdd.child = parent.child;
-                parent.child = nodeToAdd;
+                nodeToAdd.child = neigbour.child;
+                neigbour.child = nodeToAdd;
             } else {
                 // right
-                parent.child = nodeToAdd;
+                neigbour.child = nodeToAdd;
 
             }
 
             return true;
         }
 
-        // top of column
-        if (nodeToAdd.data.y > parent.data.y) {
-            Node<Data> parentOfParent = null;
+        // has previous and top of previous
+        if (nodeToAdd.data.y > prev.data.y) {
+
+            if (prev.equals(head)) {
+                addFirst(nodeToAdd);
+                return true;
+            }
+
+            Node<Data> parentOfPrev = null;
+            Node<Data> prevOfPrev = null;
             for (Node<Data> node : this) {
-                if (node.child != null && node.child.equals(parent)) {
-                    parentOfParent = node;
+                if (node.child != null && node.child.equals(prev)) {
+                    parentOfPrev = node;
+                    break;
+                }
+                if (node.next != null && node.next.equals(prev)) {
+                    prevOfPrev = node;
+                    break;
                 }
             }
 
-            if (parentOfParent != null) {
-                parentOfParent.child = nodeToAdd;
-                nodeToAdd.next = parent;
+            if (parentOfPrev != null) {
+                parentOfPrev.child = nodeToAdd;
+                nodeToAdd.next = prev;
             } else {
-                nodeToAdd.next = parent;
+                prevOfPrev.next = nodeToAdd;
+                nodeToAdd.next = prev;
             }
 
-            if (parent.child != null) {
-                nodeToAdd.child = parent.child;
+            if (prev.child != null) {
+                nodeToAdd.child = prev.child;
             }
 
             return true;
         }
-
-        while (parent.next != null && parent.next.data.y > nodeToAdd.data.y) {
-            parent = parent.next;
+        // has previous and bottom of previous
+        while (prev.next != null && prev.next.data.y > nodeToAdd.data.y) {
+            prev = prev.next;
         }
 
-        if (parent.next != null) {
-            nodeToAdd.next = parent.next;
-            parent.next = nodeToAdd;
+        if (prev.next != null) {
+            nodeToAdd.next = prev.next;
+            prev.next = nodeToAdd;
         } else {
-            parent.next = nodeToAdd;
+            prev.next = nodeToAdd;
         }
 
         return true;
     }
 
-    public final boolean delete(Node<Data> nodeToDelete) {
-        Node<Data> beforeNext = null;
-        Node<Data> parent = null;
+    private final void removeHead() {
+        Node<Data> headDelete = head;
 
-        if (nodeToDelete.equals(head)) {
+        if (head.next != null) {
+            if (head.child != null) {
+                head.next.child = head.child;
+            }
 
-            if (head.next != null) {
-                if (head.child != null) {
-                    head.next.child = head.child;
-                }
-
-                head = head.next;
+            head = head.next;
+        } else {
+            if (head.child != null) {
+                head = head.child;
             } else {
-                if (head.child != null) {
-                    head = head.child;
-                } else {
-                    head = null;
-                }
-
+                head = null;
             }
 
         }
 
+        headDelete.next = null;
+        headDelete.child = null;
+
+    }
+
+    public final boolean delete(Node<Data> nodeToDelete) {
+        Node<Data> prev = null;
+        Node<Data> parent = null;
+
+        if (nodeToDelete.equals(head)) {
+            removeHead();
+            return true;
+        }
+
         for (Node<Data> node : this) {
             if (node.next != null && node.next.equals(nodeToDelete)) {
-                beforeNext = node;
+                prev = node;
                 break;
             }
             if (node.child != null && node.child.equals(nodeToDelete)) {
@@ -177,18 +212,19 @@ public class MultiLinkedList implements Iterable<Node<Data>> {
             }
         }
 
-        if (beforeNext == null && parent == null) {
+        if (prev == null && parent == null) {
             return false;
         }
 
-        if (beforeNext != null) {
+        // has parent
+        if (prev != null) {
 
             // middle
             if (nodeToDelete.next != null) {
-                beforeNext.next = nodeToDelete.next;
+                prev.next = nodeToDelete.next;
             } // end
             else {
-                beforeNext.next = null;
+                prev.next = null;
             }
 
         } else if (parent != null) {
@@ -208,6 +244,8 @@ public class MultiLinkedList implements Iterable<Node<Data>> {
                 }
             }
 
+        } else {
+            System.out.println("hataaaa!!");
         }
         nodeToDelete.next = null;
         nodeToDelete.child = null;

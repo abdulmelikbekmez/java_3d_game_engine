@@ -113,7 +113,7 @@ public class Window {
         glfwSetKeyCallback(glfwWindow, KeyListener::keyCallBack);
 
         // Disable mouse cursor
-//        glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        // glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         // Make the OpenGL context current
         glfwMakeContextCurrent(glfwWindow);
 

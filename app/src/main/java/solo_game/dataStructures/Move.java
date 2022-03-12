@@ -39,20 +39,22 @@ public class Move {
     }
 
     public void action() {
-        mainList.delete(deleteNode);
-        mainList.delete(baseNode);
+        if (!mainList.delete(deleteNode)) {
+            System.out.println("hataaa!!");
+        }
+        if (!mainList.delete(baseNode)) {
+            System.out.println("hataaa!");
+        }
         moveBox();
         if (!mainList.add(baseNode)) {
             System.out.println("hataaa!!!");
         }
-;
-
     }
 
     private void moveBox() {
         baseNode.data.box.setPos(box.getPos());
-        baseNode.data.x = (int) (box.getPos().x / mainList.xMargin + 1 + (LevelEditorScene.N / 2));
-        baseNode.data.y = (int) (box.getPos().y / mainList.yMargin + 1 + (LevelEditorScene.N / 2));
+        baseNode.data.x = (int) (box.getPos().x / MultiLinkedList.xMargin + 1 + (LevelEditorScene.N / 2));
+        baseNode.data.y = (int) (box.getPos().y / MultiLinkedList.yMargin + 1 + (LevelEditorScene.N / 2));
 
     }
 

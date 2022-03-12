@@ -35,7 +35,6 @@ public class LinkedList<T> implements Iterable<Node<T>> {
         }
     }
 
-
     @Override
     public Iterator<Node<T>> iterator() {
 

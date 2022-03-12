@@ -23,7 +23,8 @@ public class Mesh {
         setup();
     }
 
-    protected void setup() {
+    protected void setupBuffers() {
+
         // ============================================================
         // Generate VAO, VBO, and EBO buffer objects, and send to GPU
         // ============================================================
@@ -47,6 +48,10 @@ public class Mesh {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBuffer, GL_STATIC_DRAW);
 
+    }
+
+    protected void setup() {
+        setupBuffers();
         // Add the vertex attribute pointers
         int positionsSize = 3;
         int colorSize = 4;
