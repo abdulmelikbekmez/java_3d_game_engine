@@ -25,13 +25,9 @@ public class Shader {
     }
 
     private int createShader(String vertPath, String fragPath) {
-        String vertexFile = ClassLoader.getSystemResource(vertPath).getFile();
-        String fragmentFile = ClassLoader.getSystemResource(fragPath).getFile();
-        System.out.println(vertexFile);
-        System.out.println(fragmentFile);
 
-        String vert = FileUtils.loadAsString(vertexFile);
-        String frag = FileUtils.loadAsString(fragmentFile);
+        String vert = FileUtils.loadAsString(vertPath);
+        String frag = FileUtils.loadAsString(fragPath);
 
         return create(vert, frag);
     }

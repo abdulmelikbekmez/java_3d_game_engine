@@ -144,19 +144,10 @@ public class LevelEditorScene extends Scene implements MouseHandler {
     public void onMouseMove() {
     }
 
-    private void onMoveClicked() {
-        if (hoveredMove != null) {
-            hoveredMove.data.action();
-        }
-    }
-
     @Override
     public void onMouseClick() {
         if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-            if (hoveredNode != null) {
-                selectedNode = hoveredNode;
-                hoveredNode = null;
-            }
+            onSelectedClicked();
             onMoveClicked();
         }
 
@@ -168,5 +159,18 @@ public class LevelEditorScene extends Scene implements MouseHandler {
 
         availableMovesList.erase();
 
+    }
+
+    private void onSelectedClicked() {
+        if (hoveredNode != null) {
+            selectedNode = hoveredNode;
+            hoveredNode = null;
+        }
+    }
+
+    private void onMoveClicked() {
+        if (hoveredMove != null) {
+            hoveredMove.data.action();
+        }
     }
 }

@@ -9,10 +9,13 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
-    id 'java'
 }
 
+
 import org.gradle.internal.os.OperatingSystem
+
+project.ext.lwjglVersion = "3.3.1"
+project.ext.jomlVersion = "1.10.4"
 
 switch (OperatingSystem.current()) {
     case OperatingSystem.LINUX:
@@ -61,6 +64,14 @@ tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+version = '1.0.3'
+
+
+jar {
+    manifest {
+        attributes "Main-Class": "solo_game.App"
+    }
+}
 
 tasks.register('uberJar', Jar) {
     archiveClassifier = 'uber'
@@ -70,5 +81,9 @@ tasks.register('uberJar', Jar) {
     dependsOn configurations.runtimeClasspath
     from {
         configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    manifest {
+        attributes "Main-Class": "solo_game.App"
     }
 }
