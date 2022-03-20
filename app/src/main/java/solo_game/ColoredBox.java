@@ -27,7 +27,7 @@ public class ColoredBox extends GameItem {
             -.5f, -.5f, -.5f, // bottom left 4
             .5f, -.5f, -.5f, // bottom right 5
             .5f, .5f, -.5f, // top right 6
-            -.5f, .5f, -.5f,}; // top left 7
+            -.5f, .5f, -.5f, }; // top left 7
 
     private static final int[] elementArray = {
             // front
@@ -53,8 +53,8 @@ public class ColoredBox extends GameItem {
     // TODO: for debug
     public Vector3f collidedPos;
 
-    private static final Mesh[] meshes = new Mesh[]{
-            new ColoredMesh(vertexArray, elementArray)};
+    private static final Mesh[] meshes = new Mesh[] {
+            new ColoredMesh(vertexArray, elementArray) };
 
     public ColoredBox(Vector3f pos, Vector3f color) {
         super(pos, meshes);

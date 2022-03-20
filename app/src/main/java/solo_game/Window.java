@@ -13,6 +13,8 @@ import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+import javax.swing.JOptionPane;
+
 /**
  * Window
  */
@@ -51,24 +53,24 @@ public class Window {
         return get().height;
     }
 
-    public static void changeScene(int newScene) {
-        switch (newScene) {
-            case 0:
-                currentScene = new LevelEditorScene();
-                currentScene.init();
-                break;
-            default:
-                assert false : "Unknown scene'" + newScene + "'";
-                break;
-        }
-    }
-
     public static Window get() {
         if (window == null) {
             window = new Window();
         }
 
         return window;
+    }
+
+    public static void setWindowShouldClose() {
+        glfwSetWindowShouldClose(get().glfwWindow, true);
+    }
+
+    public static void enableCursor() {
+        glfwSetInputMode(get().glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    public static void disableCursor() {
+        glfwSetInputMode(get().glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
     public void run() {
@@ -113,7 +115,7 @@ public class Window {
         glfwSetKeyCallback(glfwWindow, KeyListener::keyCallBack);
 
         // Disable mouse cursor
-        // glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         // Make the OpenGL context current
         glfwMakeContextCurrent(glfwWindow);
 
@@ -131,7 +133,33 @@ public class Window {
 
         glEnable(GL_DEPTH_TEST);
 
-        changeScene(0);
+        currentScene = new LevelEditorScene(getBoxCount());
+        currentScene.init();
+
+    }
+
+    public static int getBoxCount() {
+        boolean error;
+        int ans = 6;
+
+        do {
+            error = false;
+            try {
+
+                String res = JOptionPane.showInputDialog(null, "Please enter an even number which is greater than 4",
+                        JOptionPane.INFORMATION_MESSAGE);
+                if (res == null) {
+                    setWindowShouldClose();
+                } else {
+                    ans = Integer.parseInt(res);
+                }
+
+            } catch (NumberFormatException e) {
+                error = true;
+            }
+
+        } while (error || ans % 2 != 0 || ans <= 4);
+        return ans;
 
     }
 

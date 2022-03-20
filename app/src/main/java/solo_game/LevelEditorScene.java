@@ -4,6 +4,8 @@ import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import javax.swing.JOptionPane;
+
 import solo_game.dataStructures.Data;
 import solo_game.dataStructures.LinkedList;
 import solo_game.dataStructures.Move;
@@ -32,10 +34,12 @@ public class LevelEditorScene extends Scene implements MouseHandler {
     private Vector3f collidedPos;
 
     public static int N = 6;
+    private int moveCount;
 
-    @Override
-    public void init() {
+    public LevelEditorScene(int n) {
+        N = n;
         camera = new Camera(new Vector3f(0, 0, 20));
+        moveCount = 0;
 
         MouseListener.addMouseHandler(camera);
         MouseListener.addMouseHandler(this);
@@ -43,7 +47,15 @@ public class LevelEditorScene extends Scene implements MouseHandler {
 
         boxList = new MultiLinkedList(N);
         availableMovesList = new LinkedList<>();
+        setAvailableMoveCount();
+    }
 
+    public LevelEditorScene() {
+        this(N);
+    }
+
+    @Override
+    public void init() {
     }
 
     private void updateHover() {
@@ -84,34 +96,71 @@ public class LevelEditorScene extends Scene implements MouseHandler {
         }
     }
 
-    public LevelEditorScene() {
-    }
-
     @Override
     public void update(float dt) {
         camera.update(dt);
         updateHover();
         updateAvailableMoves();
+    }
+
+    private void setAvailableMoveCount() {
+        moveCount = 0;
+
+        for (Node<Data> node : boxList) {
+
+            Move pos;
+            if ((pos = boxList.right(node)) != null)
+                moveCount++;
+
+            if ((pos = boxList.left(node)) != null)
+                moveCount++;
+
+            if ((pos = boxList.up(node)) != null)
+                moveCount++;
+
+            if ((pos = boxList.down(node)) != null)
+                moveCount++;
+
+        }
+
+        if (moveCount == 0)
+            onMoveCountZero();
+
+    }
+
+    private void onMoveCountZero() {
+        Window.enableCursor();
+        int answer = JOptionPane.showConfirmDialog(null, "Game finished, To restart press yes", "Game Over",
+                JOptionPane.YES_NO_OPTION);
+        if (answer == 0) {
+            boxList = new MultiLinkedList(Window.getBoxCount());
+            resetHover();
+            Window.disableCursor();
+            availableMovesList.erase();
+        } else {
+            Window.setWindowShouldClose();
+        }
 
     }
 
     private void updateAvailableMoves() {
-        if (selectedNode != null) {
+        if (selectedNode == null)
+            return;
 
-            Move pos;
-            if ((pos = boxList.right(selectedNode)) != null) {
-                availableMovesList.addLast(pos);
-            }
-            if ((pos = boxList.left(selectedNode)) != null) {
-                availableMovesList.addLast(pos);
-            }
-            if ((pos = boxList.up(selectedNode)) != null) {
-                availableMovesList.addLast(pos);
-            }
-            if ((pos = boxList.down(selectedNode)) != null) {
-                availableMovesList.addLast(pos);
-            }
+        Move pos;
+        if ((pos = boxList.right(selectedNode)) != null) {
+            availableMovesList.addLast(pos);
         }
+        if ((pos = boxList.left(selectedNode)) != null) {
+            availableMovesList.addLast(pos);
+        }
+        if ((pos = boxList.up(selectedNode)) != null) {
+            availableMovesList.addLast(pos);
+        }
+        if ((pos = boxList.down(selectedNode)) != null) {
+            availableMovesList.addLast(pos);
+        }
+
     }
 
     private void renderBox(ColoredBox box) {
@@ -152,13 +201,17 @@ public class LevelEditorScene extends Scene implements MouseHandler {
         }
 
         if (MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
-            hoveredNode = null;
-            hoveredMove = null;
-            selectedNode = null;
+            resetHover();
         }
 
         availableMovesList.erase();
 
+    }
+
+    private void resetHover() {
+        hoveredNode = null;
+        hoveredMove = null;
+        selectedNode = null;
     }
 
     private void onSelectedClicked() {
@@ -171,6 +224,7 @@ public class LevelEditorScene extends Scene implements MouseHandler {
     private void onMoveClicked() {
         if (hoveredMove != null) {
             hoveredMove.data.action();
+            setAvailableMoveCount();
         }
     }
 }

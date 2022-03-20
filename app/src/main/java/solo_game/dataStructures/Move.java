@@ -30,10 +30,6 @@ public class Move {
         this.mainList = mainList;
     }
 
-    public Node<Data> getDeleteNode() {
-        return deleteNode;
-    }
-
     public ColoredBox getBox() {
         return box;
     }
